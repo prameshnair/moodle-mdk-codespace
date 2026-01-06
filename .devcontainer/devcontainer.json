@@ -1,7 +1,7 @@
 
 {
   "name": "Moodle MDK (PHP + Apache, SQLite)",
-  "image": "mcr.microsoft.com/devcontainers/php:1-8.2-bullseye",
+  "image": "mcr.microsoft.com/devcontainers/php:8.3-bullseye",
 
   // Forward Apache to a non-privileged port
   "forwardPorts": [8080],
@@ -27,6 +27,8 @@
 
   // Make sure Apache is up whenever the container starts
   "postStartCommand": "sudo service apache2 start || true",
+
+  "remoteUser": "vscode"
 
   "remoteUser": "vscode"
 }
