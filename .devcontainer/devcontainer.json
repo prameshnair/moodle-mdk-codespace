@@ -3,10 +3,10 @@
   "name": "Moodle MDK (PHP + Apache, SQLite)",
   "image": "mcr.microsoft.com/devcontainers/php:1-8.2-bullseye",
 
-  // Codespaces will auto-forward this port for your browser.
+  // Forward Apache to a non-privileged port
   "forwardPorts": [8080],
 
-  // Recommended features (optional): GitHub CLI for convenience.
+  // Keep features minimal to reduce build complexity
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
@@ -16,36 +16,17 @@
       "extensions": [
         "ikappas.composer",
         "ms-python.python",
-        "bmewburn.vscode-intelephense-client"
+        "bmewburn.vscode-intelephense-client",
+        "mrmlnc.vscode-apache"
       ]
     }
   },
 
-  // Run after the dev container is created (array is safer than a long string).
-  "postCreateCommand": [
-    // Update apt & install Apache + PHP modules (including SQLite).
-    "sudo apt-get update",
-    "sudo apt-get install -y apache2 libapache2-mod-php php-cli php-mbstring php-zip php-curl php-xml php-intl php-gd php-sqlite3",
+  // Run a simple script rather than embedding complex commands here
+  "postCreateCommand": "bash .devcontainer/setup-apache.sh",
 
-    // Link the workspace root as the Apache document root.
-    "bash -lc 'sudo rm -rf /var/www/html && sudo ln -s \"$PWD\" /var/www/html'",
-
-    // Configure Apache to listen on 8080 and set a ServerName to avoid warnings.
-    "sudo bash -lc \"sed -i 's/^Listen 80$/Listen 8080/' /etc/apache2/ports.conf\"",
-    "sudo bash -lc \"sed -i 's/<VirtualHost \\*:80>/<VirtualHost \\*:8080>/' /etc/apache2/sites-enabled/000-default.conf\"",
-    "sudo bash -lc \"grep -q '^ServerName 127.0.0.1$' /etc/apache2/apache2.conf || echo 'ServerName 127.0.0.1' | sudo tee -a /etc/apache2/apache2.conf > /dev/null\"",
-
-    // Start Apache.
-    "sudo service apache2 start || true",
-
-    // Install MDK (moodle-sdk) for the vscode user.
-    "pip install --user moodle-sdk || true",
-    "bash -lc \"echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc\""
-  ],
-
-  // Useful if you want to verify Apache state every start (harmless if already running).
+  // Make sure Apache is up whenever the container starts
   "postStartCommand": "sudo service apache2 start || true",
 
-  // Use the default non-root user for dev containers.
   "remoteUser": "vscode"
 }
